@@ -1,8 +1,9 @@
 package org.example.twitter.service;
 
-import org.example.twitter.dto.UserDto;
 import org.example.twitter.model.User;
 import org.example.twitter.repository.UserRepository;
+import org.example.twitter.security.AuthenticationResponse;
+import org.example.twitter.security.RegisterRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,10 +14,6 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
-
-    public void register(UserDto userDto) {
-
-    }
 
     public List<User> getFollowers(String userId) {
         User user = userRepository.findById(userId).orElseThrow();

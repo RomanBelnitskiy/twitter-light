@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/v1/users")
 public class UserController {
 
     @Autowired
@@ -24,5 +24,10 @@ public class UserController {
     public ResponseEntity<?> followUser(@PathVariable String userId, @RequestBody String targetUserId) {
         userService.followUser(userId, targetUserId);
         return ResponseEntity.ok("User followed successfully");
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<String> test() {
+        return ResponseEntity.ok("Hello from secured endpoint");
     }
 }
