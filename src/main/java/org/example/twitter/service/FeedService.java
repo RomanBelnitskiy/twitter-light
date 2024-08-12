@@ -1,5 +1,6 @@
 package org.example.twitter.service;
 
+import lombok.RequiredArgsConstructor;
 import org.example.twitter.model.Post;
 import org.example.twitter.model.User;
 import org.example.twitter.repository.PostRepository;
@@ -14,12 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class FeedService {
 
-    @Autowired
-    private PostRepository postRepository;
-    @Autowired
-    private UserRepository userRepository;
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
     public List<Post> getUserFeed(String userId) {
         User user = userRepository.findById(userId).orElseThrow();

@@ -1,7 +1,7 @@
 package org.example.twitter.controller;
 
 import org.example.twitter.dto.CommentDto;
-import org.example.twitter.dto.PostDto;
+import org.example.twitter.dto.NewPostDto;
 import org.example.twitter.model.Comment;
 import org.example.twitter.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +18,8 @@ public class PostController {
     private PostService postService;
 
     @PostMapping
-    public ResponseEntity<?> createPost(@RequestBody PostDto postDto) {
-        postService.createPost(postDto);
+    public ResponseEntity<?> createPost(@RequestBody NewPostDto newPostDto) {
+        postService.createPost(newPostDto);
         return ResponseEntity.ok("Post created successfully");
     }
 

@@ -2,14 +2,16 @@ package org.example.twitter.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentDto {
+public class NewPostDto {
     @NotEmpty(message = "The username is required.")
     private String userId;
 

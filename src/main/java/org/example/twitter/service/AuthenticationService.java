@@ -11,9 +11,12 @@ import org.example.twitter.security.RegisterRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,8 +34,9 @@ public class AuthenticationService {
                 .email(request.getEmail())
                 .role(Role.USER)
                 .build();
-        user = userRepository.insert(user);
         var token = jwtService.generateToken(user);
+        user.setToken(token);
+        userRepository.insert(user);
 
         return AuthenticationResponse.builder()
                 .token(token)
@@ -51,11 +55,19 @@ public class AuthenticationService {
         var user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException(request.getUsername()));
         var token = jwtService.generateToken(user);
+        user.setToken(token);
+        userRepository.save(user);
 
         return AuthenticationResponse.builder()
                 .token(token)
                 .status(HttpStatus.OK.name())
                 .error(null)
                 .build();
+    }
+
+    public void logout(UserDetails userDetails) {
+         User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
+         user.setToken(null);
+         userRepository.save(user);
     }
 }

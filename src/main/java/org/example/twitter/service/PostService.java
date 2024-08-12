@@ -1,39 +1,47 @@
 package org.example.twitter.service;
 
+import lombok.RequiredArgsConstructor;
 import org.example.twitter.dto.CommentDto;
-import org.example.twitter.dto.PostDto;
+import org.example.twitter.dto.NewPostDto;
 import org.example.twitter.model.Comment;
 import org.example.twitter.model.Post;
 import org.example.twitter.repository.CommentRepository;
 import org.example.twitter.repository.PostRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class PostService {
 
-    @Autowired
-    private PostRepository postRepository;
-    @Autowired
-    private CommentRepository commentRepository;
+    private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
 
-    public void createPost(PostDto postDto) {
-        Post post = new Post();
-        post.setUserId(postDto.getUserId());
-        post.setContent(postDto.getContent());
-        post.setCreatedAt(LocalDateTime.now());
+    public void createPost(NewPostDto newPostDto) {
+        Objects.requireNonNull(newPostDto, "Post cannot be null");
+
+         Post post = Post.builder()
+                .userId(newPostDto.getUserId())
+                .content(newPostDto.getContent())
+                .createdAt(LocalDateTime.now())
+                .build();
+
         postRepository.save(post);
     }
 
     public void addComment(String postId, CommentDto commentDto) {
-        Comment comment = new Comment();
-        comment.setPostId(postId);
-        comment.setUserId(commentDto.getUserId());
-        comment.setContent(commentDto.getContent());
-        comment.setCreatedAt(LocalDateTime.now());
+        Objects.requireNonNull(postId, "PostId cannot be null");
+        Objects.requireNonNull(commentDto, "Comment cannot be null");
+        Comment comment = Comment.builder()
+                .postId(postId)
+                .userId(commentDto.getUserId())
+                .content(commentDto.getContent())
+                .createdAt(LocalDateTime.now())
+                .build();
+
         commentRepository.save(comment);
     }
 

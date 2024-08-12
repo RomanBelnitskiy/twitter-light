@@ -1,11 +1,16 @@
 package org.example.twitter.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Builder;
+import lombok.Data;
 
-@Getter
-@Setter
+import java.time.LocalDateTime;
+
+@Data
+@Builder
 public class PostDto {
+    private String id;
     private String userId;
     private String content;
+    private LocalDateTime createdAt;
+    private int likes;
 }
