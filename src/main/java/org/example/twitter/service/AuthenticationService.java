@@ -16,8 +16,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
@@ -26,6 +24,8 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final QueueManagerService queueManagerService;
+    private final QueuePostSenderService queuePostSenderService;
 
     public AuthenticationResponse register(RegisterRequest request) {
         var user = User.builder()
@@ -36,9 +36,12 @@ public class AuthenticationService {
                 .build();
         var token = jwtService.generateToken(user);
         user.setToken(token);
-        userRepository.insert(user);
+        user = userRepository.insert(user);
+        queueManagerService.createQueueForUser(user.getId());
+        queuePostSenderService.sendPosts(user.getId());
 
         return AuthenticationResponse.builder()
+                .userId(user.getId())
                 .token(token)
                 .status(HttpStatus.OK.name())
                 .error(null)
@@ -57,8 +60,11 @@ public class AuthenticationService {
         var token = jwtService.generateToken(user);
         user.setToken(token);
         userRepository.save(user);
+        queueManagerService.createQueueForUser(user.getId());
+        queuePostSenderService.sendPosts(user.getId());
 
         return AuthenticationResponse.builder()
+                .userId(user.getId())
                 .token(token)
                 .status(HttpStatus.OK.name())
                 .error(null)
@@ -69,5 +75,6 @@ public class AuthenticationService {
          User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
          user.setToken(null);
          userRepository.save(user);
+         queueManagerService.deleteQueueForUser(user.getId());
     }
 }

@@ -73,12 +73,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         new WebAuthenticationDetailsSource().buildDetails(request)
                 );
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                boolean authenticated = SecurityContextHolder.getContext().getAuthentication().isAuthenticated();
-                if (authenticated) {
-                    log.info("Successfully authenticated user.");
-                } else {
-                    log.info("Failed to authenticate user.");
-                }
             } else {
                 log.info("Token validation fails.");
             }

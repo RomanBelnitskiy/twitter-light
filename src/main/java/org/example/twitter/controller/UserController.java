@@ -25,9 +25,4 @@ public class UserController {
         userService.followUser(userId, targetUserId);
         return ResponseEntity.ok("User followed successfully");
     }
-
-    @GetMapping("/test")
-    public ResponseEntity<String> test() {
-        return ResponseEntity.ok("Hello from secured endpoint");
-    }
 }

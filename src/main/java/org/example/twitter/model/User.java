@@ -26,6 +26,7 @@ public class User implements UserDetails {
     private String password;
     private String token;
     private Role role;
+    private String lastViewedPostId;
     @Builder.Default
     private Set<String> subscriptions = new HashSet<>();
 
