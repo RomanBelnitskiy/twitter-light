@@ -1,5 +1,6 @@
 package org.example.twitter.controller;
 
+import org.example.twitter.dto.PostDto;
 import org.example.twitter.model.Post;
 import org.example.twitter.service.FeedService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +18,13 @@ public class FeedController {
     private FeedService feedService;
 
     @GetMapping("/{userId}")
-    public List<Post> getUserFeed(@PathVariable String userId) {
-        return feedService.getUserFeed(userId);
+    public ResponseEntity<List<PostDto>> getUserFeed(@PathVariable String userId) {
+        return ResponseEntity.ok(feedService.getUserFeed(userId));
     }
 
     @GetMapping("/{userId}/next")
     public ResponseEntity<?> getNextFeed(@PathVariable String userId) {
-        Optional<Post> postOptional = feedService.getNextFeedPost(userId);
+        Optional<PostDto> postOptional = feedService.getNextFeedPost(userId);
         if (postOptional.isEmpty()) {
             return ResponseEntity.ok("There is no feed for user " + userId);
         }
@@ -32,14 +33,8 @@ public class FeedController {
     }
 
     @GetMapping("/{userId}/posts")
-    public List<Post> getUserPosts(@PathVariable String userId,
+    public ResponseEntity<List<PostDto>> getUserPosts(@PathVariable String userId,
                                    @RequestParam int page, @RequestParam int size) {
-        return feedService.getUserPosts(userId, page, size);
-    }
-
-    @PostMapping("/{userId}/last/reset")
-    public ResponseEntity<String> getUserPosts(@PathVariable String userId) {
-        feedService.resetLastViewedPost(userId);
-        return ResponseEntity.ok("Last viewed post reset");
+        return ResponseEntity.ok(feedService.getUserPosts(userId, page, size));
     }
 }

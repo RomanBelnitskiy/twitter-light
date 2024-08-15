@@ -73,15 +73,6 @@ class AuthControllerTest {
     }
 
     @Test
-    void testRabbitMQConnection() {
-        System.out.println("container.getAmqpPort() = " + rabbitMQContainer.getAmqpPort());
-        System.out.println("container.getHttpPort() = " + rabbitMQContainer.getHttpPort());
-        Integer mappedPort = rabbitMQContainer.getMappedPort(5672); // Порт RabbitMQ для AMQP
-        System.out.println("Mapped port for AMQP: " + mappedPort);
-        assert(rabbitMQContainer.isRunning());
-    }
-
-    @Test
     @DisplayName("Successful registration path")
     void whenRegisterUser_ThenOk() throws Exception {
         RegisterRequest registerRequest = RegisterRequest.builder()

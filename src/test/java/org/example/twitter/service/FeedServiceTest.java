@@ -1,6 +1,8 @@
 package org.example.twitter.service;
 
 
+import org.example.twitter.dto.PostDto;
+import org.example.twitter.mapper.PostMapper;
 import org.example.twitter.model.Post;
 import org.example.twitter.model.User;
 import org.example.twitter.repository.PostRepository;
@@ -36,6 +38,9 @@ class FeedServiceTest {
     @Mock
     private QueuePostReceiverService queuePostReceiverService;
 
+    @Mock
+    private PostMapper postMapper;
+
     @InjectMocks
     private FeedService feedService;
 
@@ -69,8 +74,9 @@ class FeedServiceTest {
             when(userRepository.findById(user1Id)).thenReturn(Optional.of(user1));
             when(postRepository.findAllByUserIdInOrderByCreatedAtDesc(new ArrayList<>(user1.getSubscriptions())))
                     .thenReturn(List.of(post1, post2));
+            when(postMapper.toPostDto(any(Post.class))).thenCallRealMethod();
 
-            List<Post> userFeed = feedService.getUserFeed(user1Id);
+            List<PostDto> userFeed = feedService.getUserFeed(user1Id);
 
             assertThat(userFeed)
                     .hasSize(2);
@@ -108,8 +114,9 @@ class FeedServiceTest {
 
             when(postRepository.findAllByUserId(userId, PageRequest.of(0, 10, Sort.by("createdAt").descending())))
                     .thenReturn(new PageImpl<>(List.of(post)));
+            when(postMapper.toPostDto(any(Post.class))).thenCallRealMethod();
 
-            List<Post> userPosts = feedService.getUserPosts(userId, 0, 10);
+            List<PostDto> userPosts = feedService.getUserPosts(userId, 0, 10);
 
             assertThat(userPosts)
                     .hasSize(1);
@@ -132,7 +139,9 @@ class FeedServiceTest {
                     .build();
 
             when(queuePostReceiverService.getPost(userId)).thenReturn(Optional.of(post));
-            Optional<Post> postOptional = feedService.getNextFeedPost(userId);
+            when(postMapper.toPostDto(any(Post.class))).thenCallRealMethod();
+
+            Optional<PostDto> postOptional = feedService.getNextFeedPost(userId);
             assertThat(postOptional)
                     .isPresent();
             verify(queuePostReceiverService, times(1)).getPost(any(String.class));
