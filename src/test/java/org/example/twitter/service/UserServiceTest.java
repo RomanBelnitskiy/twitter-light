@@ -1,5 +1,7 @@
 package org.example.twitter.service;
 
+import org.example.twitter.dto.UserDto;
+import org.example.twitter.mapper.UserMapper;
 import org.example.twitter.model.User;
 import org.example.twitter.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -21,6 +23,9 @@ public class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private UserMapper userMapper;
 
     @InjectMocks
     private UserService userService;
@@ -55,8 +60,9 @@ public class UserServiceTest {
         user1.getSubscriptions().add(user3.getId());
         when(userRepository.findById("user1")).thenReturn(Optional.of(user1));
         when(userRepository.findAllById(user1.getSubscriptions())).thenReturn(List.of(user2, user3));
+        when(userMapper.toDto(any(User.class))).thenCallRealMethod();
 
-        List<User> followers = userService.getFollowers("user1");
+        List<UserDto> followers = userService.getFollowers("user1");
 
         assertThat(followers)
                 .isNotEmpty()

@@ -2,6 +2,7 @@ package org.example.twitter.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.twitter.config.MongoDBTestcontainersConfig;
+import org.example.twitter.config.RabbitMQTestcontainersConfig;
 import org.example.twitter.model.Role;
 import org.example.twitter.model.User;
 import org.example.twitter.repository.UserRepository;
@@ -17,8 +18,11 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.testcontainers.containers.RabbitMQContainer;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -29,7 +33,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-@Import(MongoDBTestcontainersConfig.class)
+@Import({MongoDBTestcontainersConfig.class, RabbitMQTestcontainersConfig.class})
+@Testcontainers
+@ActiveProfiles("test")
 class AuthControllerTest {
 
     @LocalServerPort
@@ -52,14 +58,27 @@ class AuthControllerTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private RabbitMQContainer rabbitMQContainer;
+
     @BeforeEach
     void setUp() {
         baseUrl = "http://localhost:" + port + "/api/v1/auth";
+
     }
 
     @AfterEach
     void tearDown() {
         userRepository.deleteAll();
+    }
+
+    @Test
+    void testRabbitMQConnection() {
+        System.out.println("container.getAmqpPort() = " + rabbitMQContainer.getAmqpPort());
+        System.out.println("container.getHttpPort() = " + rabbitMQContainer.getHttpPort());
+        Integer mappedPort = rabbitMQContainer.getMappedPort(5672); // Порт RabbitMQ для AMQP
+        System.out.println("Mapped port for AMQP: " + mappedPort);
+        assert(rabbitMQContainer.isRunning());
     }
 
     @Test

@@ -1,5 +1,6 @@
 package org.example.twitter.controller;
 
+import org.example.twitter.dto.UserDto;
 import org.example.twitter.model.User;
 import org.example.twitter.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,8 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("/{userId}/followers")
-    public List<User> getFollowers(@PathVariable String userId) {
-        return userService.getFollowers(userId);
+    public ResponseEntity<List<UserDto>> getFollowers(@PathVariable String userId) {
+        return ResponseEntity.ok(userService.getFollowers(userId));
     }
 
     @PostMapping("/{userId}/follow")

@@ -33,6 +33,9 @@ class FeedServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private QueuePostReceiverService queuePostReceiverService;
+
     @InjectMocks
     private FeedService feedService;
 
@@ -111,6 +114,29 @@ class FeedServiceTest {
             assertThat(userPosts)
                     .hasSize(1);
             verify(postRepository, times(1)).findAllByUserId(any(String.class), any(Pageable.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("getNextPost() tests")
+    class GetNextPost {
+        @Test
+        @DisplayName("When get next posts then return post")
+        void whenGetNextPosts_thenReturnPost() {
+            String userId = "user1";
+            Post post = Post.builder()
+                    .id("post1")
+                    .userId("user2")
+                    .content("content")
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+            when(queuePostReceiverService.getPost(userId)).thenReturn(Optional.of(post));
+            Optional<Post> postOptional = feedService.getNextFeedPost(userId);
+            assertThat(postOptional)
+                    .isPresent();
+            verify(queuePostReceiverService, times(1)).getPost(any(String.class));
+
         }
     }
 }

@@ -1,15 +1,33 @@
 version: "3.8"
 services:
+  twitter-web-app:
+    container_name: twitter-web-app
+    build:
+      dockerfile: Dockerfile
+    image: twitter-web-app:latest
+    ports:
+      - 8080:8080
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - mongodb
+      - rabbitmq
+    networks:
+      - twitter-network
+
   mongodb:
     image: mongo
     container_name: mongodb
     ports:
       - 27017:27017
     volumes:
-      - d:\docker-volumes\mongodb\data:/data
+      - mongodb_data:/data/db
     environment:
       - MONGO_INITDB_ROOT_USERNAME=rootadmin
       - MONGO_INITDB_ROOT_PASSWORD=password
+    networks:
+      - twitter-network
+
   mongo-express:
     image: mongo-express
     container_name: mongo-express
@@ -20,6 +38,12 @@ services:
       - ME_CONFIG_BASICAUTH_USERNAME=rootadmin
       - ME_CONFIG_BASICAUTH_PASSWORD=password
       - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=rootadmin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+    networks:
+      - twitter-network
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
@@ -29,9 +53,12 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=user
       - RABBITMQ_DEFAULT_PASS=password
+    networks:
+      - twitter-network
+
 volumes:
-  data: {}
+  mongodb_data:
 
 networks:
-  default:
-    name: mongodb_network
+  twitter-network:
+    name: twitter-network
