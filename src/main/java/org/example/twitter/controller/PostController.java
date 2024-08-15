@@ -30,7 +30,7 @@ public class PostController {
     }
 
     @GetMapping("/{postId}/comments")
-    public List<Comment> getComments(@PathVariable String postId) {
-        return postService.getComments(postId);
+    public ResponseEntity<List<Comment>> getComments(@PathVariable String postId) {
+        return ResponseEntity.ok(postService.getComments(postId));
     }
 }
