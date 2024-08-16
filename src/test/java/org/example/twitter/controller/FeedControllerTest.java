@@ -16,7 +16,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -145,11 +144,43 @@ class FeedControllerTest {
     }
 
     @Test
+    @DisplayName("Get next post then no one post in queue")
+    void whenGetNextPost_ThenNoOnePostInQueue() throws Exception {
+        postRepository.deleteAll();
+        setUserTokenToNull();
+        AuthenticationRequest authenticationRequest = AuthenticationRequest.builder()
+                .username(USERNAME)
+                .password(PASSWORD)
+                .build();
+        String stringAuthenticationRequest = objectMapper.writeValueAsString(authenticationRequest);
+
+        MvcResult mvcResult = mvc.perform(post("http://localhost:" + port + "/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(stringAuthenticationRequest))
+                .andDo(print())
+                .andExpect(status().is2xxSuccessful())
+                .andReturn();
+
+        String content = mvcResult.getResponse().getContentAsString();
+        AuthenticationResponse authenticationResponse = objectMapper.readValue(content, AuthenticationResponse.class);
+
+        mvc.perform(get(baseUrl + user.getId() + "/next")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + authenticationResponse.getToken()))
+                .andDo(print())
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(jsonPath("$", is("There is no feed for user " + user.getId())));
+
+        assertThat(Objects.requireNonNull(rabbitAdmin.getQueueInfo(user.getId())).getMessageCount())
+                .isEqualTo(0);
+    }
+
+    @Test
     @DisplayName("Get user's posts returns three posts")
     void whenGetUserPosts_ThenReturnThreePosts() throws Exception {
         createThreePostsFroUser(user.getId());
 
-        mvc.perform(get(baseUrl + user.getId())
+        mvc.perform(get(baseUrl + user.getId() + "/posts?page=0&size=10")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + user.getToken()))
                 .andDo(print())
